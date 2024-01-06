@@ -1,0 +1,20 @@
+services:
+  wsclient:
+    image: golang:1.20
+    hostname: wsclient
+    working_dir: /usr/src/app
+    volumes: [ .:/usr/src/app ]
+    command: go run github.com/cloudx-labs/challenge
+    mem_limit: 4096MB
+    networks: [ cloudx ]
+
+  wsserver:
+    image: public.ecr.aws/h0f1y5l9/wsserver:latest
+    hostname: wsserver
+    mem_limit: 4096MB
+    ports: [ '5050:5050' ]
+    networks: [ cloudx ]
+
+networks:
+  cloudx:
+    name: cloudx
