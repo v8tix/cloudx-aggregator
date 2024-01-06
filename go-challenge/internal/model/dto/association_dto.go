@@ -9,8 +9,8 @@ type AssociationsDTO struct {
 	associations []request.Association
 }
 
-func NewAssociationsDTO(associations []request.Association) AssociationsDTO {
-	return AssociationsDTO{
+func NewAssociationsDTO(associations []request.Association) *AssociationsDTO {
+	return &AssociationsDTO{
 		Metadata:     NewMetadata(),
 		associations: associations,
 	}

@@ -7,8 +7,8 @@ type MessageDTO struct {
 	message *request.Message
 }
 
-func NewMessageDTO(message *request.Message) MessageDTO {
-	return MessageDTO{
+func NewMessageDTO(message *request.Message) *MessageDTO {
+	return &MessageDTO{
 		Metadata: NewMetadata(),
 		message:  message,
 	}

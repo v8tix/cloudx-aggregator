@@ -23,8 +23,7 @@ func (a AssociationsObservable) Pipe(obs rxgo.Observable) rxgo.Observable {
 
 		data, ok := item.([]uint8)
 		if !ok {
-			err := fmt.Errorf("unexpected type: %T, expected []uint8", item)
-			a.logger.Error(err.Error())
+			a.logger.Error(fmt.Errorf("unexpected type: %T, expected []uint8", item).Error())
 			return false
 		}
 
@@ -50,7 +49,7 @@ func (a AssociationsObservable) Pipe(obs rxgo.Observable) rxgo.Observable {
 			return nil, err
 		}
 
-		return a.toAssociationsDto(data), nil
+		return a.toAssociationsDTO(data), nil
 	})
 }
 
@@ -72,6 +71,6 @@ func (a AssociationsObservable) toAssociations(data []uint8) ([]request.Associat
 	return associations, nil
 }
 
-func (a AssociationsObservable) toAssociationsDto(associations []request.Association) dto.AssociationsDTO {
+func (a AssociationsObservable) toAssociationsDTO(associations []request.Association) *dto.AssociationsDTO {
 	return dto.NewAssociationsDTO(associations)
 }
