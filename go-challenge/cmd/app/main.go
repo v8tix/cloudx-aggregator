@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/cloudx-labs/challenge/internal/configuration"
+	"github.com/cloudx-labs/challenge/internal/model/dto"
 	"github.com/cloudx-labs/challenge/internal/rx"
 	"github.com/gorilla/websocket"
 	"github.com/reactivex/rxgo/v2"
@@ -14,7 +16,6 @@ import (
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
 
-	//Create a channel for WebSocket messages
 	ch := make(chan rxgo.Item)
 
 	conn, err := run(logger)
@@ -31,21 +32,21 @@ func main() {
 		}
 	}(conn)
 
-	//associationsObs := rx.NewAssociationsObservable(logger)
+	associationsObs := rx.NewAssociationsObservable(logger)
 	messageObs := rx.NewMessageObservable(logger)
+	groupObs := rx.NewGroupObservable(logger)
 
 	go producer(logger, conn, ch)
 
 	rawObservable := rxgo.FromChannel(ch)
-	//associationsPipe := associationsObs.Pipe(rawObservable)
+	associationsPipe := associationsObs.Pipe(rawObservable)
 	messagePipe := messageObs.Pipe(rawObservable)
+	groupPipe := groupObs.Pipe(associationsPipe, messagePipe)
 
-	//for item := range associationsPipe.Observe() {
-	//	fmt.Println(fmt.Sprintf("value: %#v", item.V))
-	//}
-
-	for item := range messagePipe.Observe() {
-		fmt.Println(fmt.Sprintf("value: %#v", item.V))
+	for item := range groupPipe.Observe() {
+		data := item.V.(dto.Group)
+		bytes, _ := json.Marshal(data)
+		fmt.Println(fmt.Sprintf("value: %s", string(bytes)))
 	}
 
 	select {}

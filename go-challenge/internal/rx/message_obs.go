@@ -23,8 +23,7 @@ func (m MessageObservable) Pipe(obs rxgo.Observable) rxgo.Observable {
 
 		data, ok := item.([]uint8)
 		if !ok {
-			err := fmt.Errorf("unexpected type: %T, expected []uint8", item)
-			m.logger.Error(err.Error())
+			m.logger.Error(fmt.Errorf("unexpected type: %T, expected []uint8", item).Error())
 			return false
 		}
 
@@ -45,12 +44,12 @@ func (m MessageObservable) Pipe(obs rxgo.Observable) rxgo.Observable {
 
 		data, ok := item.(*request.Message)
 		if !ok {
-			err := fmt.Errorf("unexpected type: %T, expected request.Message", item)
+			err := fmt.Errorf("unexpected type: %T, expected *request.Message", item)
 			m.logger.Error(err.Error())
 			return nil, err
 		}
 
-		return m.toMessageDto(data), nil
+		return m.toMessageDTO(data), nil
 	})
 }
 
@@ -73,6 +72,6 @@ func (m MessageObservable) toMessage(data []uint8) (*request.Message, error) {
 	return &message, nil
 }
 
-func (m MessageObservable) toMessageDto(message *request.Message) dto.MessageDTO {
+func (m MessageObservable) toMessageDTO(message *request.Message) *dto.MessageDTO {
 	return dto.NewMessageDTO(message)
 }
