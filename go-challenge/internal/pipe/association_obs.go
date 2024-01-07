@@ -1,9 +1,7 @@
-package rx
+package pipe
 
 import (
-	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/cloudx-labs/challenge/internal/model/dto"
 	"github.com/cloudx-labs/challenge/internal/model/request"
 	"github.com/reactivex/rxgo/v2"
@@ -19,38 +17,10 @@ func NewAssociationsObservable(logger *slog.Logger) AssociationsObservable {
 }
 
 func (a AssociationsObservable) Pipe(obs rxgo.Observable) rxgo.Observable {
-	return obs.Filter(func(item interface{}) bool {
-
-		data, ok := item.([]uint8)
-		if !ok {
-			a.logger.Error(fmt.Errorf("unexpected type: %T, expected []uint8", item).Error())
-			return false
-		}
-
-		return a.areAssociations(data)
-
-	}).Map(func(_ context.Context, item interface{}) (interface{}, error) {
-
-		data, ok := item.([]uint8)
-		if !ok {
-			err := fmt.Errorf("unexpected type: %T, expected []uint8", item)
-			a.logger.Error(err.Error())
-			return nil, err
-		}
-
-		return a.toAssociations(data)
-
-	}).Map(func(_ context.Context, item interface{}) (interface{}, error) {
-
-		data, ok := item.([]request.Association)
-		if !ok {
-			err := fmt.Errorf("unexpected type: %T, expected []request.Association", item)
-			a.logger.Error(err.Error())
-			return nil, err
-		}
-
-		return a.toAssociationsDTO(data), nil
-	})
+	filter := filterByType(obs, a.areAssociations)
+	associationsMap := mapBytesTo(filter, toMany[request.Association])
+	associationDTOMap := mapToMany[request.Association, dto.AssociationsDTO](associationsMap, a.toAssociationsDTO)
+	return associationDTOMap
 }
 
 func (a AssociationsObservable) areAssociations(data []uint8) bool {
@@ -71,6 +41,6 @@ func (a AssociationsObservable) toAssociations(data []uint8) ([]request.Associat
 	return associations, nil
 }
 
-func (a AssociationsObservable) toAssociationsDTO(associations []request.Association) *dto.AssociationsDTO {
+func (a AssociationsObservable) toAssociationsDTO(associations *[]request.Association) *dto.AssociationsDTO {
 	return dto.NewAssociationsDTO(associations)
 }

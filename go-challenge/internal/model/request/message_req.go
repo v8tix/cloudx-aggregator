@@ -7,3 +7,5 @@ type Message struct {
 	Path        string `json:"path"`
 	HTTPStatus  int    `json:"httpStatus"`
 }
+
+func (m Message) isReq() {}

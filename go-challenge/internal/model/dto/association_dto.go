@@ -6,10 +6,12 @@ import (
 
 type AssociationsDTO struct {
 	Metadata
-	Associations []request.Association
+	Associations *[]request.Association
 }
 
-func NewAssociationsDTO(associations []request.Association) *AssociationsDTO {
+func (a AssociationsDTO) isDTO() {}
+
+func NewAssociationsDTO(associations *[]request.Association) *AssociationsDTO {
 	return &AssociationsDTO{
 		Metadata:     NewMetadata(),
 		Associations: associations,
