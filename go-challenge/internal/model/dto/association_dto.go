@@ -6,12 +6,12 @@ import (
 
 type AssociationsDTO struct {
 	Metadata
-	associations []request.Association
+	Associations []request.Association
 }
 
 func NewAssociationsDTO(associations []request.Association) *AssociationsDTO {
 	return &AssociationsDTO{
 		Metadata:     NewMetadata(),
-		associations: associations,
+		Associations: associations,
 	}
 }

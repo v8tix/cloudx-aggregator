@@ -6,13 +6,13 @@ import (
 )
 
 type Metadata struct {
-	CorrelationId string
+	CorrelationID string
 	ReceivedAt    time.Time
 }
 
 func NewMetadata() Metadata {
 	return Metadata{
-		CorrelationId: uuid.NewString(),
+		CorrelationID: uuid.NewString(),
 		ReceivedAt:    time.Now().UTC(),
 	}
 }

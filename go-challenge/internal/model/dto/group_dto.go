@@ -1,10 +1,10 @@
 package dto
 
-type Group struct {
-	Associations *AssociationsDTO
-	Message      *MessageDTO
+type GroupDTO struct {
+	AssociationsDTO *AssociationsDTO
+	MessageDTO      *MessageDTO
 }
 
-func NewGroup(associations *AssociationsDTO, message *MessageDTO) *Group {
-	return &Group{Associations: associations, Message: message}
+func NewGroup(associations *AssociationsDTO, message *MessageDTO) *GroupDTO {
+	return &GroupDTO{AssociationsDTO: associations, MessageDTO: message}
 }
