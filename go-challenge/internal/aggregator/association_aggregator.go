@@ -24,7 +24,7 @@ func (a *AssociationsAggregator) AddAssociations(group *dto.GroupDTO) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	if a.LastCorrelationID != group.AssociationsDTO.Metadata.CorrelationID {
-		a.Associations = append(a.Associations, group.AssociationsDTO.Associations...)
+		a.Associations = append(a.Associations, *group.AssociationsDTO.Associations...)
 		a.LastCorrelationID = group.AssociationsDTO.Metadata.CorrelationID
 	}
 }

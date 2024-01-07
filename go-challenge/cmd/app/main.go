@@ -1,12 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/cloudx-labs/challenge/internal/configuration"
 	"github.com/cloudx-labs/challenge/internal/model/dto"
-	"github.com/cloudx-labs/challenge/internal/rx"
+	"github.com/cloudx-labs/challenge/internal/pipe"
 	"github.com/gorilla/websocket"
 	"github.com/reactivex/rxgo/v2"
 	"log/slog"
@@ -32,11 +31,11 @@ func main() {
 		}
 	}(conn)
 
-	associationsObs := rx.NewAssociationsObservable(logger)
-	messageObs := rx.NewMessageObservable(logger)
-	groupObs := rx.NewGroupObservable(logger)
+	associationsObs := pipe.NewAssociationsObservable(logger)
+	messageObs := pipe.NewMessageObservable(logger)
+	groupObs := pipe.NewGroupObservable(logger)
 
-	go producer(logger, conn, ch)
+	go pipe.Producer(logger, conn, ch)
 
 	rawObservable := rxgo.FromChannel(ch)
 	associationsPipe := associationsObs.Pipe(rawObservable)
@@ -45,11 +44,12 @@ func main() {
 
 	for item := range groupPipe.Observe() {
 		group := item.V.(*dto.GroupDTO)
-		bytes, _ := json.Marshal(group)
-		fmt.Printf("value: %s\n", string(bytes))
-		if rx.AssociationAggregator.FindParentByChildren(group) {
+		//bytes, _ := json.Marshal(group)
+		//fmt.Printf("value: %s\n", string(bytes))
+		if pipe.AssociationAggregator.FindParentByChildren(group) {
 			logger.Info("Parent found!")
 		}
+		fmt.Printf("value:%#v\n", group)
 	}
 
 	select {}
@@ -84,15 +84,4 @@ func printUsage() {
 	fmt.Println("Usage: cloudx-client [options]")
 	fmt.Println("Options:")
 	flag.PrintDefaults()
-}
-
-func producer(logger *slog.Logger, conn *websocket.Conn, next chan<- rxgo.Item) {
-	for {
-		_, message, err := conn.ReadMessage()
-		if err != nil {
-			logger.Error(err.Error())
-			return
-		}
-		next <- rxgo.Of(message)
-	}
 }

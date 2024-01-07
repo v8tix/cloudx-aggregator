@@ -1,4 +1,4 @@
-package rx
+package pipe
 
 import (
 	"github.com/cloudx-labs/challenge/internal/aggregator"
