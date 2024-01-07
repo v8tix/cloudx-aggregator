@@ -44,9 +44,12 @@ func main() {
 	groupPipe := groupObs.Pipe(associationsPipe, messagePipe)
 
 	for item := range groupPipe.Observe() {
-		data := item.V.(dto.Group)
-		bytes, _ := json.Marshal(data)
-		fmt.Println(fmt.Sprintf("value: %s", string(bytes)))
+		group := item.V.(*dto.GroupDTO)
+		bytes, _ := json.Marshal(group)
+		fmt.Printf("value: %s\n", string(bytes))
+		if rx.AssociationAggregator.FindParentByChildren(group) {
+			logger.Info("Parent found!")
+		}
 	}
 
 	select {}

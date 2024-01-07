@@ -1,0 +1,107 @@
+[
+  {
+    "AssociationsDTO": {
+      "CorrelationId": "f0c78418-c525-4fdd-bf2b-15217861540c",
+      "ReceivedAt": "2024-01-07T02:24:23.637430164Z",
+      "Associations": [
+        {
+          "parent": "1b1f3f68-1265-4349-a7d6-796922bb69d1",
+          "children": "d30aee41-eb9d-4054-8444-a72eb1a8bd20"
+        },
+        {
+          "parent": "297254d9-5687-4d11-bc2c-649dd27e470c",
+          "children": "47fd6829-fb67-4cbf-b1ca-c926a626ef8c"
+        },
+        {
+          "parent": "92452520-224f-4f4c-9fc8-7e07983b0f0a",
+          "children": "498fb19e-4ab3-4a85-8ab2-84acff96e723"
+        },
+        {
+          "parent": "f5b3e4ab-c8ca-4849-81c8-d978a00342b9",
+          "children": "87f2db2f-4fa6-4b2c-bc77-b6bd3d527aa4"
+        }
+      ]
+    },
+    "MessageDTO": {
+      "CorrelationId": "c1b7e837-ff53-4327-8e81-d26201db12df",
+      "ReceivedAt": "2024-01-07T02:24:31.756157772Z",
+      "Message": {
+        "source": "47fd6829-fb67-4cbf-b1ca-c926a626ef8c",
+        "destination": "87f2db2f-4fa6-4b2c-bc77-b6bd3d527aa4",
+        "method": "GET",
+        "path": "/list",
+        "httpStatus": 200
+      }
+    }
+  },
+  {
+    "AssociationsDTO": {
+      "CorrelationId": "f0c78418-c525-4fdd-bf2b-15217861540c",
+      "ReceivedAt": "2024-01-07T02:24:23.637430164Z",
+      "Associations": [
+        {
+          "parent": "1b1f3f68-1265-4349-a7d6-796922bb69d1",
+          "children": "d30aee41-eb9d-4054-8444-a72eb1a8bd20"
+        },
+        {
+          "parent": "297254d9-5687-4d11-bc2c-649dd27e470c",
+          "children": "47fd6829-fb67-4cbf-b1ca-c926a626ef8c"
+        },
+        {
+          "parent": "92452520-224f-4f4c-9fc8-7e07983b0f0a",
+          "children": "498fb19e-4ab3-4a85-8ab2-84acff96e723"
+        },
+        {
+          "parent": "f5b3e4ab-c8ca-4849-81c8-d978a00342b9",
+          "children": "87f2db2f-4fa6-4b2c-bc77-b6bd3d527aa4"
+        }
+      ]
+    },
+    "MessageDTO": {
+      "CorrelationId": "9681d04c-a36b-4674-b822-5546ecb49361",
+      "ReceivedAt": "2024-01-07T02:24:33.757591147Z",
+      "Message": {
+        "source": "24eb7136-c8e5-4d01-a065-86de79f8be2d",
+        "destination": "acbcb145-14b4-425a-947d-e425f45946d4",
+        "method": "PATCH",
+        "path": "/update",
+        "httpStatus": 400
+      }
+    }
+  },
+  {
+    "AssociationsDTO": {
+      "CorrelationId": "f0c78418-c525-4fdd-bf2b-15217861540c",
+      "ReceivedAt": "2024-01-07T02:24:23.637430164Z",
+      "Associations": [
+        {
+          "parent": "1b1f3f68-1265-4349-a7d6-796922bb69d1",
+          "children": "d30aee41-eb9d-4054-8444-a72eb1a8bd20"
+        },
+        {
+          "parent": "297254d9-5687-4d11-bc2c-649dd27e470c",
+          "children": "47fd6829-fb67-4cbf-b1ca-c926a626ef8c"
+        },
+        {
+          "parent": "92452520-224f-4f4c-9fc8-7e07983b0f0a",
+          "children": "498fb19e-4ab3-4a85-8ab2-84acff96e723"
+        },
+        {
+          "parent": "f5b3e4ab-c8ca-4849-81c8-d978a00342b9",
+          "children": "87f2db2f-4fa6-4b2c-bc77-b6bd3d527aa4"
+        }
+      ]
+    },
+    "MessageDTO": {
+      "CorrelationId": "4c0ded7b-7a79-48cd-a8e3-a64c5499f7ab",
+      "ReceivedAt": "2024-01-07T02:24:35.759064331Z",
+      "Message": {
+        "source": "ee362986-d060-44c4-b207-e6a10e6df75c",
+        "destination": "2ac94819-78ee-4d1e-9bd3-553ec629baa9",
+        "method": "PATCH",
+        "path": "/update",
+        "httpStatus": 200
+      }
+    }
+  }
+]

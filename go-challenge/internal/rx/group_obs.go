@@ -1,9 +1,14 @@
 package rx
 
 import (
+	"github.com/cloudx-labs/challenge/internal/aggregator"
 	"github.com/cloudx-labs/challenge/internal/model/dto"
 	"github.com/reactivex/rxgo/v2"
 	"log/slog"
+)
+
+var (
+	AssociationAggregator = aggregator.NewAssociationsAggregator()
 )
 
 type GroupObservable struct {
@@ -22,11 +27,11 @@ func (g GroupObservable) Pipe(observables ...rxgo.Observable) rxgo.Observable {
 			var err error
 
 			for _, v := range i {
-				switch v.(type) {
+				switch v := v.(type) {
 				case *dto.AssociationsDTO:
-					associationsDTO = v.(*dto.AssociationsDTO)
+					associationsDTO = v
 				case *dto.MessageDTO:
-					messageDTO = v.(*dto.MessageDTO)
+					messageDTO = v
 				default:
 					err = v.(error)
 				}
@@ -35,7 +40,9 @@ func (g GroupObservable) Pipe(observables ...rxgo.Observable) rxgo.Observable {
 				return err
 			}
 
-			return dto.NewGroup(associationsDTO, messageDTO)
+			group := dto.NewGroup(associationsDTO, messageDTO)
+			AssociationAggregator.AddAssociations(group)
+			return group
 		},
 		observables,
 	)

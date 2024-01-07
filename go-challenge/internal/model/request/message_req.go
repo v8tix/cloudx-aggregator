@@ -5,5 +5,5 @@ type Message struct {
 	Destination string `json:"destination"`
 	Method      string `json:"method"`
 	Path        string `json:"path"`
-	HttpStatus  int    `json:"httpStatus"`
+	HTTPStatus  int    `json:"httpStatus"`
 }
