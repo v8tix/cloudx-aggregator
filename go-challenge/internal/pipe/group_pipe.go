@@ -1,25 +1,28 @@
 package pipe
 
 import (
-	"github.com/cloudx-labs/challenge/internal/aggregator"
 	"github.com/cloudx-labs/challenge/internal/model/dto"
+	"github.com/cloudx-labs/challenge/internal/store"
 	"github.com/reactivex/rxgo/v2"
 	"log/slog"
 )
 
-var (
-	AssociationAggregator = aggregator.NewAssociationsAggregator()
-)
-
 type GroupObservable struct {
-	logger *slog.Logger
+	AssociationStore *store.AssociationsStore
+	logger           *slog.Logger
 }
 
-func NewGroupObservable(logger *slog.Logger) GroupObservable {
-	return GroupObservable{logger: logger}
+func NewGroupObservable(
+	logger *slog.Logger,
+	associationStore *store.AssociationsStore,
+) GroupObservable {
+	return GroupObservable{
+		AssociationStore: associationStore,
+		logger:           logger,
+	}
 }
 
-func (g GroupObservable) Pipe(observables ...rxgo.Observable) rxgo.Observable {
+func (g *GroupObservable) Pipe(observables ...rxgo.Observable) rxgo.Observable {
 	return rxgo.CombineLatest(
 		func(i ...interface{}) interface{} {
 			var associationsDTO *dto.AssociationsDTO
@@ -41,7 +44,7 @@ func (g GroupObservable) Pipe(observables ...rxgo.Observable) rxgo.Observable {
 			}
 
 			group := dto.NewGroup(associationsDTO, messageDTO)
-			AssociationAggregator.AddAssociations(group)
+			g.AssociationStore.Add(group)
 			return group
 		},
 		observables,

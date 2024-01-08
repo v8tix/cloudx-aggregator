@@ -3,6 +3,7 @@ package pipe
 import (
 	"bytes"
 	"github.com/cloudx-labs/challenge/internal/model/dto"
+	"github.com/cloudx-labs/challenge/internal/store"
 	"github.com/reactivex/rxgo/v2"
 	"log/slog"
 	"os"
@@ -28,8 +29,11 @@ var (
 	messageObs = func() MessageObservable {
 		return NewMessageObservable(logger)
 	}()
+	associationStore = func() *store.AssociationsStore {
+		return store.NewAssociationsStore()
+	}()
 	groupObs = func() GroupObservable {
-		return NewGroupObservable(logger)
+		return NewGroupObservable(logger, associationStore)
 	}()
 )
 
