@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/cloudx-labs/challenge/internal/configuration"
@@ -44,12 +45,12 @@ func main() {
 
 	for item := range groupPipe.Observe() {
 		group := item.V.(*dto.GroupDTO)
-		//bytes, _ := json.Marshal(group)
-		//fmt.Printf("value: %s\n", string(bytes))
+		bytes, _ := json.Marshal(group)
+		fmt.Printf("value: %s\n", string(bytes))
 		if pipe.AssociationAggregator.FindParentByChildren(group) {
 			logger.Info("Parent found!")
 		}
-		fmt.Printf("value:%#v\n", group)
+		fmt.Printf("value:%#v\n", item.V)
 	}
 
 	select {}
