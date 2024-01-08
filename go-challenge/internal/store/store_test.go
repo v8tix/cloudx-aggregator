@@ -1,4 +1,4 @@
-package aggregator
+package store
 
 import (
 	"encoding/json"
@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	groupMocks = "../mock/group/"
+	groupMocks = "../../mock/group/"
 )
 
 var (
@@ -24,18 +24,18 @@ var (
 		_ = json.Unmarshal(data, &groupDTO)
 		return &groupDTO
 	}()
-	associationsAggregator = func() *AssociationsAggregator {
-		return NewAssociationsAggregator()
+	associationsStore = func() *AssociationsStore {
+		return NewAssociationsStore()
 	}
 )
 
 func TestSearchingParentUUIDWithSourceAndDestinationUUIDsReturnParentUUID(t *testing.T) {
 	t.Parallel()
 
-	ag := associationsAggregator()
+	ag := associationsStore()
 
 	for _, groupDTO := range *group1 {
-		ag.AddAssociations(&groupDTO)
+		ag.Add(&groupDTO)
 	}
 
 	cases := map[string]struct {
@@ -50,7 +50,7 @@ func TestSearchingParentUUIDWithSourceAndDestinationUUIDsReturnParentUUID(t *tes
 
 	for input, tc := range cases {
 		t.Run(input, func(t *testing.T) {
-			result := ag.FindParentByChildren(&tc.group)
+			_, result := ag.FindParentsByChildren(&tc.group)
 			if result != tc.want {
 				t.Fatalf("Expected: %v, Got: %v", true, result)
 			}
@@ -58,10 +58,10 @@ func TestSearchingParentUUIDWithSourceAndDestinationUUIDsReturnParentUUID(t *tes
 	}
 }
 
-func TestSearchingParentUUIDWithSourceAndDestinationUUIDsWithEmptyAggregatorReturnFalse(t *testing.T) {
+func TestSearchingParentUUIDWithSourceAndDestinationUUIDsWithEmptyStoreReturnFalse(t *testing.T) {
 	t.Parallel()
 
-	ag := associationsAggregator()
+	ag := associationsStore()
 
 	cases := map[string]struct {
 		group dto.GroupDTO
@@ -75,7 +75,7 @@ func TestSearchingParentUUIDWithSourceAndDestinationUUIDsWithEmptyAggregatorRetu
 
 	for input, tc := range cases {
 		t.Run(input, func(t *testing.T) {
-			result := ag.FindParentByChildren(&tc.group)
+			_, result := ag.FindParentsByChildren(&tc.group)
 			if result != tc.want {
 				t.Fatalf("Expected: %v, Got: %v", true, result)
 			}

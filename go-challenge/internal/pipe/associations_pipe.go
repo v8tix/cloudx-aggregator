@@ -25,6 +25,7 @@ func (a AssociationsObservable) Pipe(obs rxgo.Observable) rxgo.Observable {
 
 func (a AssociationsObservable) areAssociations(data []uint8) bool {
 	var associations []request.Association
+
 	if err := json.Unmarshal(data, &associations); err == nil {
 		return true
 	}

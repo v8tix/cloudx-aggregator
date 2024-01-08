@@ -6,14 +6,11 @@ import (
 	"fmt"
 	"github.com/cloudx-labs/challenge/internal/model/dto"
 	"github.com/cloudx-labs/challenge/internal/model/request"
-	"github.com/gorilla/websocket"
 	"github.com/reactivex/rxgo/v2"
-	"log/slog"
 )
 
 func filterByType(obs rxgo.Observable, f func([]uint8) bool) rxgo.Observable {
 	return obs.Filter(func(item interface{}) bool {
-
 		data, ok := item.([]uint8)
 		if !ok {
 			return false
@@ -79,15 +76,4 @@ func toMany[T request.ReqI](data []uint8) (interface{}, error) {
 	}
 
 	return &req, nil
-}
-
-func Producer(logger *slog.Logger, conn *websocket.Conn, next chan<- rxgo.Item) {
-	for {
-		_, message, err := conn.ReadMessage()
-		if err != nil {
-			logger.Error(err.Error())
-			return
-		}
-		next <- rxgo.Of(message)
-	}
 }

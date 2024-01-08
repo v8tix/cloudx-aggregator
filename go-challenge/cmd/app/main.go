@@ -1,22 +1,40 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/cloudx-labs/challenge/internal/configuration"
-	"github.com/cloudx-labs/challenge/internal/model/dto"
 	"github.com/cloudx-labs/challenge/internal/pipe"
+	"github.com/cloudx-labs/challenge/internal/store"
+	"github.com/cloudx-labs/challenge/internal/task"
 	"github.com/gorilla/websocket"
 	"github.com/reactivex/rxgo/v2"
 	"log/slog"
 	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 )
 
-func main() {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+var done chan struct{}
 
+func main() {
+	var wg sync.WaitGroup
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	logger.Info("client", "process", os.Getpid())
 	ch := make(chan rxgo.Item)
+	done = make(chan struct{})
+	interrupt := make(chan os.Signal, 1)
+	wg.Add(1)
+	go func() {
+		<-interrupt
+		wg.Done()
+		close(done)
+	}()
+	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
+
+	associationStore := store.NewAssociationsStore()
+	responseStore := store.NewResponseStore()
 
 	conn, err := run(logger)
 	if err != nil {
@@ -34,26 +52,20 @@ func main() {
 
 	associationsObs := pipe.NewAssociationsObservable(logger)
 	messageObs := pipe.NewMessageObservable(logger)
-	groupObs := pipe.NewGroupObservable(logger)
-
-	go pipe.Producer(logger, conn, ch)
-
+	groupObs := pipe.NewGroupObservable(logger, associationStore)
 	rawObservable := rxgo.FromChannel(ch)
 	associationsPipe := associationsObs.Pipe(rawObservable)
 	messagePipe := messageObs.Pipe(rawObservable)
 	groupPipe := groupObs.Pipe(associationsPipe, messagePipe)
+	groupDTOCh := groupPipe.Observe()
 
-	for item := range groupPipe.Observe() {
-		group := item.V.(*dto.GroupDTO)
-		bytes, _ := json.Marshal(group)
-		fmt.Printf("value: %s\n", string(bytes))
-		if pipe.AssociationAggregator.FindParentByChildren(group) {
-			logger.Info("Parent found!")
-		}
-		fmt.Printf("value:%#v\n", item.V)
-	}
-
-	select {}
+	wg.Add(1)
+	go task.Producer(logger, conn, ch, done, &wg)
+	wg.Add(1)
+	go task.Write(logger, responseStore, done, &wg)
+	wg.Add(1)
+	go task.Aggregator(logger, associationStore, responseStore, groupDTOCh, done, &wg)
+	wg.Wait()
 }
 
 func run(logger *slog.Logger) (*websocket.Conn, error) {
@@ -70,13 +82,13 @@ func run(logger *slog.Logger) (*websocket.Conn, error) {
 	}
 
 	uri := fmt.Sprintf("ws://%s:%s", cfg.Host, cfg.Port)
-	logger.Info("attempting to connect", "server:", uri)
+	logger.Info("attempting to connect", "server", uri)
 	conn, _, err := websocket.DefaultDialer.Dial(uri, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	logger.Info("connection established", "server:", uri)
+	logger.Info("connection established", "server", uri)
 	return conn, nil
 }
 
