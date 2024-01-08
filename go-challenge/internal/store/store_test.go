@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/cloudx-labs/challenge/internal/model/dto"
 	"github.com/cloudx-labs/challenge/internal/utils"
+	"github.com/google/uuid"
 	"log"
 	"testing"
 )
@@ -27,9 +28,24 @@ var (
 	associationsStore = func() *AssociationsStore {
 		return NewAssociationsStore()
 	}
+	responseStore = func() *ResponseStore {
+		return NewResponseStore()
+	}()
+	parentGroupArr = func() []ParentGroup {
+		return []ParentGroup{
+			{
+				Source:      uuid.NewString(),
+				Destination: uuid.NewString(),
+			},
+			{
+				Source:      uuid.NewString(),
+				Destination: uuid.NewString(),
+			},
+		}
+	}()
 )
 
-func TestSearchingParentUUIDWithSourceAndDestinationUUIDsReturnParentUUID(t *testing.T) {
+func TestSearchingAssociationStoreByParentUUIDWithSourceAndDestinationUUIDsReturnParentUUID(t *testing.T) {
 	t.Parallel()
 
 	ag := associationsStore()
@@ -58,7 +74,7 @@ func TestSearchingParentUUIDWithSourceAndDestinationUUIDsReturnParentUUID(t *tes
 	}
 }
 
-func TestSearchingParentUUIDWithSourceAndDestinationUUIDsWithEmptyStoreReturnFalse(t *testing.T) {
+func TestSearchingAssociationStoreByParentUUIDWithSourceAndDestinationUUIDsWithEmptyStoreReturnFalse(t *testing.T) {
 	t.Parallel()
 
 	ag := associationsStore()
@@ -78,6 +94,37 @@ func TestSearchingParentUUIDWithSourceAndDestinationUUIDsWithEmptyStoreReturnFal
 			_, result := ag.FindParentsByChildren(&tc.group)
 			if result != tc.want {
 				t.Fatalf("Expected: %v, Got: %v", true, result)
+			}
+		})
+	}
+}
+
+func TestGettingResponseStoreResponseWithNonEmptyStoreReturnsResponse(t *testing.T) {
+	t.Parallel()
+
+	cases := map[string]struct {
+		input []ParentGroup
+		want  bool
+	}{
+		"with non empty store": {
+			input: parentGroupArr,
+			want:  false,
+		},
+	}
+
+	for input, tc := range cases {
+		t.Run(input, func(t *testing.T) {
+			for _, parentGroup := range tc.input {
+				responseStore.Add(parentGroup)
+			}
+
+			bytes, err := responseStore.ToResponse()
+			if err != nil {
+				t.Fatalf("Error reading store")
+			}
+
+			if bytes == nil {
+				t.Fatalf("Expected non nil response")
 			}
 		})
 	}
