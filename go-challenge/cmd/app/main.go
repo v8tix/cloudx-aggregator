@@ -21,20 +21,10 @@ var done chan struct{}
 func main() {
 	var wg sync.WaitGroup
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	logger.Info("client", "process", os.Getpid())
-	ch := make(chan rxgo.Item)
+	logger.Info("client", "pid", os.Getpid())
+	readerCh := make(chan rxgo.Item)
 	done = make(chan struct{})
 	interrupt := make(chan os.Signal, 1)
-	wg.Add(1)
-	go func() {
-		<-interrupt
-		wg.Done()
-		close(done)
-	}()
-	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
-
-	associationStore := store.NewAssociationsStore()
-	responseStore := store.NewResponseStore()
 
 	conn, err := run(logger)
 	if err != nil {
@@ -50,21 +40,31 @@ func main() {
 		}
 	}(conn)
 
+	associationStore := store.NewAssociationsStore()
+	responseStore := store.NewResponseStore()
 	associationsObs := pipe.NewAssociationsObservable(logger)
 	messageObs := pipe.NewMessageObservable(logger)
 	groupObs := pipe.NewGroupObservable(logger, associationStore)
-	rawObservable := rxgo.FromChannel(ch)
+	rawObservable := rxgo.FromChannel(readerCh)
 	associationsPipe := associationsObs.Pipe(rawObservable)
 	messagePipe := messageObs.Pipe(rawObservable)
 	groupPipe := groupObs.Pipe(associationsPipe, messagePipe)
 	groupDTOCh := groupPipe.Observe()
 
-	wg.Add(1)
-	go task.Producer(logger, conn, ch, done, &wg)
-	wg.Add(1)
-	go task.Write(logger, responseStore, done, &wg)
-	wg.Add(1)
-	go task.Aggregator(logger, associationStore, responseStore, groupDTOCh, done, &wg)
+	tasks := task.NewTasks(
+		logger,
+		responseStore,
+		associationStore,
+		conn,
+		readerCh,
+		groupDTOCh,
+		interrupt,
+		done,
+		&wg,
+	)
+
+	tasks.Run()
+	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
 	wg.Wait()
 }
 

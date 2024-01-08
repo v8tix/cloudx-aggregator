@@ -17,7 +17,6 @@ type ResponseStore struct {
 func NewResponseStore() *ResponseStore {
 	return &ResponseStore{
 		Store: make(map[string]int),
-		mu:    sync.Mutex{},
 	}
 }
 
