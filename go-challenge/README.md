@@ -46,3 +46,21 @@ We will be evaluating program architecture, data structures, synchronization, re
 ## Delivery
 
 Zip the solution and send it (or a download link) to cloudx contact
+
+## How to execute
+
+# Build the Docker container for the wsclient
+
+1. Ensure execution permissions for the build script:
+   ```bash
+   $ chmod +x /go-challenge/build.sh
+2. Execute the build script:
+   ```bash
+   $ chmod +x /go-challenge/build.sh
+3. You can see the build log using the file /go-challenge/build.log
+
+# Executing and halting the application
+1. Within the /go-challenge directory, run the following command:
+   ```bash
+   $ docker-compose up
+2. To terminate the application, simply press `Ctrl + C`.   

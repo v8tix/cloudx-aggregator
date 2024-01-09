@@ -1,20 +1,24 @@
 services:
   wsclient:
-    image: golang:1.20
+    image: wsclient:v1.0.0
+    command: -host=172.10.10.51 -port=5050
     hostname: wsclient
-    working_dir: /usr/src/app
-    volumes: [ .:/usr/src/app ]
-    command: go run github.com/cloudx-labs/challenge
     mem_limit: 4096MB
-    networks: [ cloudx ]
+    networks:
+      cloudx:
+        ipv4_address: 172.10.10.50
 
   wsserver:
     image: public.ecr.aws/h0f1y5l9/wsserver:latest
     hostname: wsserver
     mem_limit: 4096MB
     ports: [ '5050:5050' ]
-    networks: [ cloudx ]
-
+    networks:
+      cloudx:
+        ipv4_address: 172.10.10.51
 networks:
   cloudx:
-    name: cloudx
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.10.10.0/24"
