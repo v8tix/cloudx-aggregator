@@ -26,7 +26,7 @@ func main() {
 	done = make(chan struct{})
 	interrupt := make(chan os.Signal, 1)
 
-	conn, err := run(logger)
+	conn, err := connect(logger)
 	if err != nil {
 		logger.Error(err.Error())
 	}
@@ -68,7 +68,7 @@ func main() {
 	wg.Wait()
 }
 
-func run(logger *slog.Logger) (*websocket.Conn, error) {
+func connect(logger *slog.Logger) (*websocket.Conn, error) {
 	var cfg configuration.RemoteServerCfg
 
 	flag.StringVar(&cfg.Host, "host", "localhost", "specify the remote server's address (default is localhost)")
@@ -92,9 +92,8 @@ func run(logger *slog.Logger) (*websocket.Conn, error) {
 	return conn, nil
 }
 
-// TODO give a name for the output binary
 func printUsage() {
-	fmt.Println("Usage: cloudx-client [options]")
+	fmt.Println("Usage: wsclient [options]")
 	fmt.Println("Options:")
 	flag.PrintDefaults()
 }
